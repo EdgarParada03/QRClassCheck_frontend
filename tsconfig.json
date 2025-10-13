@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    // Estructura de archivos
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    // Configuración del entorno
+    "module": "ESNext",
+    "target": "ES6",
+    "moduleResolution": "node",
+    "lib": ["DOM", "ESNext"],
+    "types": ["react", "react-dom"],
+    "ignoreDeprecations": "6.0",
+
+
+    // Salida de compilación
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Reglas de tipado estricto
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    // JSX para React
+    "jsx": "react-jsx",
+
+    // Compatibilidad y rendimiento
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+
+    // Estilo de código
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
