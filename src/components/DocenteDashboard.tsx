@@ -82,9 +82,9 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
     const cargarDatos = async () => {
       try {
         const [resClases, resAsignaturas, resSemestres] = await Promise.all([
-          fetch(`http://localhost:3000/clases?docente_id=${docente_id}`),
-          fetch("http://localhost:3000/asignaturas"),
-          fetch("http://localhost:3000/semestres"),
+          fetch(`https://qrclasscheck-backend.onrender.com/clases?docente_id=${docente_id}`),
+          fetch("https://qrclasscheck-backend.onrender.com/asignaturas"),
+          fetch("https://qrclasscheck-backend.onrender.com/semestres"),
         ]);
 
         if (resClases.ok) setClases(await resClases.json());
@@ -157,7 +157,7 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
     };
 
     try {
-      const response = await fetch("http://localhost:3000/clases", {
+      const response = await fetch("https://qrclasscheck-backend.onrender.com/clases", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
