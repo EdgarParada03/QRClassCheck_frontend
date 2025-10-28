@@ -72,7 +72,9 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
       fecha_inicio: "",
       fecha_fin: "",
     },
+    tema: "", // ← nuevo campo agregado
   });
+
 
 
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
@@ -154,7 +156,9 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
       asignatura,
       semestre,
       docente_id,
+      tema: formulario.tema, // ← nuevo campo incluido
     };
+
 
     try {
       const response = await fetch("https://qrclasscheck-backend.onrender.com/clases", {
@@ -178,6 +182,7 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
           hora_fin: "",
           asignaturaSeleccionada: "",
           semestreSeleccionado: "",
+          tema: "",
           nuevaAsignatura: { nombre: "", codigo: "" },
           nuevoSemestre: {
             nombre: "",
@@ -228,6 +233,24 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
               />
               <InputField label="Hora Inicio" type="time" value={formulario.hora_inicio} onChange={(v) => setFormulario({ ...formulario, hora_inicio: v })} />
               <InputField label="Hora Fin" type="time" value={formulario.hora_fin} onChange={(v) => setFormulario({ ...formulario, hora_fin: v })} />
+
+              <div className="md:col-span-3 space-y-2">
+                <Label className="text-gray-700">Tema de la clase</Label>
+                <textarea
+                  value={formulario.tema}
+                  onChange={(e) => {
+                    const texto = e.target.value;
+                    if (texto.length <= 500) {
+                      setFormulario({ ...formulario, tema: texto });
+                    }
+                  }}
+                  placeholder="Escribe el contenido o tema que se dictará en esta sesión"
+                  className="w-full border border-gray-300 rounded-md p-2 resize-none min-h-[100px]"
+                />
+                <p className="text-sm text-gray-500">
+                  Máximo 500 caracteres. Campo opcional pero recomendado.
+                </p>
+              </div>
 
               {/* Asignatura */}
               <SelectField
