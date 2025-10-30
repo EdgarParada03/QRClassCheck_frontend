@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Login } from "./components/Login";
 import { DocenteDashboard } from "./components/DocenteDashboard";
+import { Asistencia } from "./components/Asistencia"; // Ajusta la ruta si lo tienes en otra carpeta
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Verificar si hay un token de autenticación guardado
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     if (token) {
       setIsAuthenticated(true);
     }
@@ -22,12 +23,26 @@ export default function App() {
   };
 
   return (
-    <>
-      {!isAuthenticated ? (
-        <Login onLoginSuccess={handleLoginSuccess} />
-      ) : (
-        <DocenteDashboard onLogout={handleLogout} />
-      )}
-    </>
+    <BrowserRouter>
+      <Routes>
+        {/* Ruta pública para escaneo de QR */}
+        <Route path="/asistencia/:idClase" element={<Asistencia />} />
+
+        {/* Ruta protegida para docentes */}
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? (
+              <DocenteDashboard onLogout={handleLogout} />
+            ) : (
+              <Login onLoginSuccess={handleLoginSuccess} />
+            )
+          }
+        />
+
+        {/* Redirección por defecto */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
