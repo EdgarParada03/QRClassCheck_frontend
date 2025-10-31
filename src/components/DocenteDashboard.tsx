@@ -42,21 +42,10 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
   const [clases, setClases] = useState<Clase[]>([]);
   const [asignaturas, setAsignaturas] = useState<Asignatura[]>([]);
   const [semestres, setSemestres] = useState<Semestre[]>([]);
-  const [qrGenerado, setQrGenerado] = useState<string | null>(null);
-  const [claseReciente, setClaseReciente] = useState<Clase | null>(null);
-
   const [qrModal, setQrModal] = useState<{ visible: boolean; clase: Clase | null }>({
     visible: false,
     clase: null,
   });
-
-  const handleGenerarQR = (clase: Clase) => {
-    setQrModal({ visible: true, clase });
-  };
-
-  const cerrarQRModal = () => {
-    setQrModal({ visible: false, clase: null });
-  };
 
   const [formulario, setFormulario] = useState({
     dia: "",
@@ -72,10 +61,8 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
       fecha_inicio: "",
       fecha_fin: "",
     },
-    tema: "", // ← nuevo campo agregado
+    tema: "",
   });
-
-
 
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
   const docente_id = userInfo.sub || userInfo.id || "docente-demo";
@@ -109,6 +96,7 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
       semestreSeleccionado,
       nuevaAsignatura,
       nuevoSemestre,
+      tema,
     } = formulario;
 
     if (!dia || !hora_inicio || !hora_fin) {
@@ -138,10 +126,7 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
 
     const semestre =
       semestreSeleccionado === "nuevo"
-        ? {
-          ...nuevoSemestre,
-          año: parseInt(nuevoSemestre.año),
-        }
+        ? { ...nuevoSemestre, año: parseInt(nuevoSemestre.año) }
         : semestres.find((s) => s.nombre === semestreSeleccionado);
 
     if (!asignatura || !semestre) {
@@ -156,9 +141,8 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
       asignatura,
       semestre,
       docente_id,
-      tema: formulario.tema, // ← nuevo campo incluido
+      tema,
     };
-
 
     try {
       const response = await fetch("https://qrclasscheck-backend.onrender.com/clases", {
@@ -172,9 +156,7 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
 
       if (response.ok) {
         const data = await response.json();
-        setQrGenerado(data.qrHash);
-        setClaseReciente(data); // Mostrar clase recién creada
-        setClases((prev) => [data, ...prev]); // Actualizar listado
+        setClases((prev) => [data, ...prev]);
         alert("✅ Clase creada correctamente");
         setFormulario({
           dia: "",
@@ -201,6 +183,10 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
     }
   };
 
+  const handleGenerarQR = (clase: Clase) => {
+    setQrModal({ visible: true, clase });
+  };
+
   const handleCerrarSesion = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userInfo");
@@ -208,7 +194,6 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
   };
   return (
     <>
-      {/* Contenedor principal */}
       <div className="min-h-screen bg-gray-100 p-6">
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Header */}
@@ -224,13 +209,7 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
             <h2 className="text-gray-900 mb-6">Crear Clase</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <SelectField
-                label="Día"
-                value={formulario.dia}
-                onChange={(v) => setFormulario({ ...formulario, dia: v })}
-                options={["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]}
-                placeholder="Selecciona el día"
-              />
+              <SelectField label="Día" value={formulario.dia} onChange={(v) => setFormulario({ ...formulario, dia: v })} options={["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]} placeholder="Selecciona el día" />
               <InputField label="Hora Inicio" type="time" value={formulario.hora_inicio} onChange={(v) => setFormulario({ ...formulario, hora_inicio: v })} />
               <InputField label="Hora Fin" type="time" value={formulario.hora_fin} onChange={(v) => setFormulario({ ...formulario, hora_fin: v })} />
 
@@ -247,19 +226,10 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
                   placeholder="Escribe el contenido o tema que se dictará en esta sesión"
                   className="w-full border border-gray-300 rounded-md p-2 resize-none min-h-[100px]"
                 />
-                <p className="text-sm text-gray-500">
-                  Máximo 500 caracteres. Campo opcional pero recomendado.
-                </p>
+                <p className="text-sm text-gray-500">Máximo 500 caracteres. Campo opcional pero recomendado.</p>
               </div>
 
-              {/* Asignatura */}
-              <SelectField
-                label="Asignatura"
-                value={formulario.asignaturaSeleccionada}
-                onChange={(v) => setFormulario({ ...formulario, asignaturaSeleccionada: v })}
-                options={[...asignaturas.map((a) => a.codigo), "nueva"]}
-                placeholder="Selecciona o crea una asignatura"
-              />
+              <SelectField label="Asignatura" value={formulario.asignaturaSeleccionada} onChange={(v) => setFormulario({ ...formulario, asignaturaSeleccionada: v })} options={[...asignaturas.map((a) => a.codigo), "nueva"]} placeholder="Selecciona o crea una asignatura" />
               {formulario.asignaturaSeleccionada === "nueva" && (
                 <>
                   <InputField label="Nombre Asignatura" value={formulario.nuevaAsignatura.nombre} onChange={(v) => setFormulario({ ...formulario, nuevaAsignatura: { ...formulario.nuevaAsignatura, nombre: v } })} />
@@ -267,25 +237,12 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
                 </>
               )}
 
-              {/* Semestre */}
-              <SelectField
-                label="Semestre"
-                value={formulario.semestreSeleccionado}
-                onChange={(v) => setFormulario({ ...formulario, semestreSeleccionado: v })}
-                options={[...semestres.map((s) => s.nombre), "nuevo"]}
-                placeholder="Selecciona o crea un semestre"
-              />
+              <SelectField label="Semestre" value={formulario.semestreSeleccionado} onChange={(v) => setFormulario({ ...formulario, semestreSeleccionado: v })} options={[...semestres.map((s) => s.nombre), "nuevo"]} placeholder="Selecciona o crea un semestre" />
               {formulario.semestreSeleccionado === "nuevo" && (
                 <>
                   <InputField label="Nombre Semestre" value={formulario.nuevoSemestre.nombre} onChange={(v) => setFormulario({ ...formulario, nuevoSemestre: { ...formulario.nuevoSemestre, nombre: v } })} />
                   <InputField label="Año" type="number" value={formulario.nuevoSemestre.año} onChange={(v) => setFormulario({ ...formulario, nuevoSemestre: { ...formulario.nuevoSemestre, año: v } })} />
-                  <SelectField
-                    label="Periodo"
-                    value={formulario.nuevoSemestre.periodo}
-                    onChange={(v) => setFormulario({ ...formulario, nuevoSemestre: { ...formulario.nuevoSemestre, periodo: v } })}
-                    options={["A", "B"]}
-                    placeholder="Selecciona periodo"
-                  />
+                  <SelectField label="Periodo" value={formulario.nuevoSemestre.periodo} onChange={(v) => setFormulario({ ...formulario, nuevoSemestre: { ...formulario.nuevoSemestre, periodo: v } })} options={["A", "B"]} placeholder="Selecciona periodo" />
                   <InputField label="Inicio Semestre" type="date" value={formulario.nuevoSemestre.fecha_inicio} onChange={(v) => setFormulario({ ...formulario, nuevoSemestre: { ...formulario.nuevoSemestre, fecha_inicio: v } })} />
                   <InputField label="Fin Semestre" type="date" value={formulario.nuevoSemestre.fecha_fin} onChange={(v) => setFormulario({ ...formulario, nuevoSemestre: { ...formulario.nuevoSemestre, fecha_fin: v } })} />
                 </>
@@ -295,18 +252,6 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
             <Button onClick={handleGuardarClase} className="w-full bg-[#1a2332] hover:bg-[#2a3442] text-white">
               Guardar Clase
             </Button>
-
-            {/* Clase recién creada */}
-            {claseReciente && (
-              <div className="mt-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <h3 className="text-gray-900 mb-2">Clase creada:</h3>
-                <p><strong>Día:</strong> {claseReciente.dia}</p>
-                <p><strong>Hora:</strong> {claseReciente.hora_inicio} - {claseReciente.hora_fin}</p>
-                <p><strong>Asignatura:</strong> {claseReciente.asignatura.nombre} ({claseReciente.asignatura.codigo})</p>
-                <p><strong>Semestre:</strong> {claseReciente.semestre.nombre} - {claseReciente.semestre.año} ({claseReciente.semestre.periodo})</p>
-                <img src={claseReciente.qrHash} alt="QR generado" className="mt-4 w-32 h-32" />
-              </div>
-            )}
           </div>
 
           {/* Horario Generado */}
@@ -316,43 +261,20 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
                 <Clock className="w-5 h-5 text-gray-700" />
                 <h2 className="text-gray-900 text-lg font-semibold">Horario Generado</h2>
               </div>
-              <Button variant="outline" className="border-gray-300">
-                Ver Horario Completo
-              </Button>
+              <Button variant="outline" className="border-gray-300">Ver Horario Completo</Button>
             </div>
 
             <div className="space-y-4">
               {clases.map((clase) => (
-                <div
-                  key={clase.id}
-                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                >
+                <div key={clase.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div>
-                    <h3 className="text-gray-900 font-medium">
-                      {clase.asignatura.nombre} ({clase.asignatura.codigo})
-                    </h3>
-                    <p className="text-gray-600">
-                      {clase.dia}: {clase.hora_inicio} - {clase.hora_fin}
-                    </p>
-                    <p className="text-gray-500 text-sm">
-                      {clase.semestre.nombre} - {clase.semestre.año} ({clase.semestre.periodo})
-                    </p>
+                    <h3 className="text-gray-900 font-medium">{clase.asignatura.nombre} ({clase.asignatura.codigo})</h3>
+                    <p className="text-gray-600">{clase.dia}: {clase.hora_inicio} - {clase.hora_fin}</p>
+                    <p className="text-gray-500 text-sm">{clase.semestre.nombre} - {clase.semestre.año} ({clase.semestre.periodo})</p>
                   </div>
                   <div className="flex gap-2">
-                    <Button
-                      onClick={() => handleGenerarQR(clase)}
-                      className="bg-[#1a2332] hover:bg-[#2a3442] text-white"
-                    >
-                      Generar QR
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      onClick={() => console.log("Ver reporte de:", clase)}
-                      className="border-gray-300"
-                    >
-                      Reporte
-                    </Button>
+                    <Button onClick={() => handleGenerarQR(clase)} className="bg-[#1a2332] hover:bg-[#2a3442] text-white">Generar QR</Button>
+                    <Button variant="outline" onClick={() => console.log("Ver reporte de:", clase)} className="border-gray-300">Reporte</Button>
                   </div>
                 </div>
               ))}
@@ -361,38 +283,46 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
         </div>
       </div>
 
-      {/* Modal QR emergente */}
-      {qrModal.visible && qrModal.clase && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-[320px] text-center relative">
-            <h3 className="text-gray-900 font-semibold mb-4">QR de la clase</h3>
-            <img
-              src={qrModal.clase.qrHash}
-              alt="QR generado"
-              className="mx-auto w-48 h-48 mb-4"
-            />
-            <p className="text-sm text-gray-600 mb-2">
-              {qrModal.clase.asignatura.nombre} ({qrModal.clase.asignatura.codigo})<br />
-              {qrModal.clase.dia}: {qrModal.clase.hora_inicio} - {qrModal.clase.hora_fin}
-            </p>
-            <Button
-              onClick={cerrarQRModal}
-              variant="outline"
-              className="w-full border-gray-300"
-            >
-              Cerrar
-            </Button>
-          </div>
-        </div>
-      )}
-
+      {/* Modal QR dinámico */}
+      {qrModal.visible && qrModal.clase && <QRModalDinamico clase={qrModal.clase} onClose={() => setQrModal({ visible: false, clase: null })} />}
     </>
   );
-
-
 }
 
-// Componentes auxiliares
+// Modal QR dinámico
+function QRModalDinamico({ clase, onClose }: { clase: Clase; onClose: () => void }) {
+  const [qrUrl, setQrUrl] = useState("");
+
+  useEffect(() => {
+    const generarQR = () => {
+      const baseUrl = `https://qrclasscheck-frontend.vercel.app/asistencia/${clase.id}`;
+      const randomizer = `?r=${Date.now()}`;
+      const fullUrl = `${baseUrl}${randomizer}`;
+      const qr = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(fullUrl)}&size=200x200`;
+      setQrUrl(qr);
+    };
+
+    generarQR();
+    const interval = setInterval(generarQR, 10000);
+    return () => clearInterval(interval);
+  }, [clase.id]);
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-[320px] text-center relative">
+        <h3 className="text-gray-900 font-semibold mb-4">QR dinámico de la clase</h3>
+        <img src={qrUrl} alt="QR dinámico" className="mx-auto w-48 h-48 mb-4" />
+        <p className="text-sm text-gray-600 mb-2">
+          {clase.asignatura.nombre} ({clase.asignatura.codigo})<br />
+          {clase.dia}: {clase.hora_inicio} - {clase.hora_fin}
+        </p>
+        <Button onClick={onClose} variant="outline" className="w-full border-gray-300">Cerrar</Button>
+      </div>
+    </div>
+  );
+}
+
+
 function InputField({
   label,
   type = "text",
@@ -448,3 +378,4 @@ function SelectField({
     </div>
   );
 }
+
