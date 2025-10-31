@@ -1,109 +1,69 @@
 import { useEffect, useState } from "react";
-import { auth } from "../firebase";
-import {
-  onAuthStateChanged,
-  signInWithPopup,
-  GoogleAuthProvider,
-} from "firebase/auth";
 
 export function Asistencia({ idClase }: { idClase: string }) {
-  const [estado, setEstado] = useState<
-    "cargando" | "registrado" | "error" | "no-autenticado"
-  >("cargando");
+  const [estado, setEstado] = useState<"cargando" | "registrado" | "error" | "no-autenticado">("no-autenticado");
   const [mensaje, setMensaje] = useState("");
 
   useEffect(() => {
-    const verificarAutenticacion = async () => {
-      onAuthStateChanged(auth, async (usuario) => {
-        if (!usuario) {
-          setEstado("no-autenticado");
-          return;
-        }
+    // Inicializar Google Sign-In
+    window.google?.accounts.id.initialize({
+      client_id: "TU_CLIENT_ID_DE_GOOGLE", // el mismo que usa el backend
+      callback: handleCredentialResponse,
+    });
 
-        try {
-          const idToken = await usuario.getIdToken(true); // fuerza refresco
+    window.google?.accounts.id.renderButton(
+      document.getElementById("googleSignInDiv")!,
+      { theme: "outline", size: "large" }
+    );
+  }, []);
 
-          // Paso 1: registrar usuario como estudiante
-          await fetch("https://qrclasscheck-backend.onrender.com/api/auth/google", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ idToken, es_docente: false }),
-          });
+  const handleCredentialResponse = async (response: any) => {
+    const idToken = response.credential;
 
-          // Paso 2: registrar asistencia
-          const response = await fetch(
-            "https://qrclasscheck-backend.onrender.com/api/asistencia/con-token",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ idToken, clase_id: idClase }),
-            }
-          );
-
-          if (response.ok) {
-            setEstado("registrado");
-            setMensaje("✅ Asistencia registrada correctamente");
-          } else {
-            const error = await response.json();
-            setEstado("error");
-            setMensaje(
-              `❌ Error: ${error.message || "No se pudo registrar la asistencia"}`
-            );
-          }
-        } catch (err) {
-          console.error("Error al registrar asistencia:", err);
-          setEstado("error");
-          setMensaje("❌ Error inesperado al conectar con el servidor");
-        }
-      });
-    };
-
-    verificarAutenticacion();
-  }, [idClase]);
-
-  const iniciarSesion = async () => {
     try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      setEstado("cargando");
-    } catch (error) {
-      console.error("Error al iniciar sesión:", error);
+      // Paso 1: registrar usuario como estudiante
+      await fetch("https://qrclasscheck-backend.onrender.com/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken, es_docente: false }),
+      });
+
+      // Paso 2: registrar asistencia
+      const res = await fetch("https://qrclasscheck-backend.onrender.com/api/asistencia/con-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken, clase_id: idClase }),
+      });
+
+      if (res.ok) {
+        setEstado("registrado");
+        setMensaje("✅ Asistencia registrada correctamente");
+      } else {
+        const error = await res.json();
+        setEstado("error");
+        setMensaje(`❌ Error: ${error.message || "No se pudo registrar la asistencia"}`);
+      }
+    } catch (err) {
+      console.error("Error al registrar asistencia:", err);
       setEstado("error");
-      setMensaje("❌ No se pudo iniciar sesión con Google");
+      setMensaje("❌ Error inesperado al conectar con el servidor");
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-sm p-8 w-full max-w-md text-center space-y-6">
-        <h1 className="text-gray-900 text-xl font-semibold">
-          Registro de Asistencia
-        </h1>
-
-        {estado === "cargando" && (
-          <p className="text-gray-600">Verificando autenticación...</p>
-        )}
+        <h1 className="text-gray-900 text-xl font-semibold">Registro de Asistencia</h1>
 
         {estado === "no-autenticado" && (
           <>
-            <p className="text-gray-600">
-              Debes iniciar sesión con Google para registrar tu asistencia.
-            </p>
-            <button
-              onClick={iniciarSesion}
-              className="bg-[#1a2332] hover:bg-[#2a3442] text-white px-4 py-2 rounded-md"
-            >
-              Iniciar sesión con Google
-            </button>
+            <p className="text-gray-600">Inicia sesión con Google para registrar tu asistencia.</p>
+            <div id="googleSignInDiv" className="flex justify-center" />
           </>
         )}
 
         {(estado === "registrado" || estado === "error") && (
-          <p
-            className={`text-lg ${
-              estado === "registrado" ? "text-green-600" : "text-red-600"
-            }`}
-          >
+          <p className={`text-lg ${estado === "registrado" ? "text-green-600" : "text-red-600"}`}>
             {mensaje}
           </p>
         )}
