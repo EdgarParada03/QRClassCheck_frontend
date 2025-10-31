@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { auth } from "../firebase"; // Asegúrate que la ruta sea correcta
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { auth } from "../firebase";
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
 
 export function Asistencia({ idClase }: { idClase: string }) {
-
-  const [estado, setEstado] = useState<"cargando" | "registrado" | "error" | "no-autenticado">("cargando");
+  const [estado, setEstado] = useState<
+    "cargando" | "registrado" | "error" | "no-autenticado"
+  >("cargando");
   const [mensaje, setMensaje] = useState("");
 
   useEffect(() => {
@@ -17,18 +21,24 @@ export function Asistencia({ idClase }: { idClase: string }) {
         }
 
         try {
-          const idToken = await usuario.getIdToken();
+          const idToken = await usuario.getIdToken(true); // fuerza refresco
 
-          const response = await fetch("https://qrclasscheck-backend.onrender.com/api/asistencia/con-token", {
+          // Paso 1: registrar usuario como estudiante
+          await fetch("https://qrclasscheck-backend.onrender.com/api/auth/google", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              idToken,
-              clase_id: idClase,
-            }),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken, es_docente: false }),
           });
+
+          // Paso 2: registrar asistencia
+          const response = await fetch(
+            "https://qrclasscheck-backend.onrender.com/api/asistencia/con-token",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ idToken, clase_id: idClase }),
+            }
+          );
 
           if (response.ok) {
             setEstado("registrado");
@@ -36,7 +46,9 @@ export function Asistencia({ idClase }: { idClase: string }) {
           } else {
             const error = await response.json();
             setEstado("error");
-            setMensaje(`❌ Error: ${error.message || "No se pudo registrar la asistencia"}`);
+            setMensaje(
+              `❌ Error: ${error.message || "No se pudo registrar la asistencia"}`
+            );
           }
         } catch (err) {
           console.error("Error al registrar asistencia:", err);
@@ -64,13 +76,19 @@ export function Asistencia({ idClase }: { idClase: string }) {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-sm p-8 w-full max-w-md text-center space-y-6">
-        <h1 className="text-gray-900 text-xl font-semibold">Registro de Asistencia</h1>
+        <h1 className="text-gray-900 text-xl font-semibold">
+          Registro de Asistencia
+        </h1>
 
-        {estado === "cargando" && <p className="text-gray-600">Verificando autenticación...</p>}
+        {estado === "cargando" && (
+          <p className="text-gray-600">Verificando autenticación...</p>
+        )}
 
         {estado === "no-autenticado" && (
           <>
-            <p className="text-gray-600">Debes iniciar sesión con Google para registrar tu asistencia.</p>
+            <p className="text-gray-600">
+              Debes iniciar sesión con Google para registrar tu asistencia.
+            </p>
             <button
               onClick={iniciarSesion}
               className="bg-[#1a2332] hover:bg-[#2a3442] text-white px-4 py-2 rounded-md"
@@ -81,7 +99,11 @@ export function Asistencia({ idClase }: { idClase: string }) {
         )}
 
         {(estado === "registrado" || estado === "error") && (
-          <p className={`text-lg ${estado === "registrado" ? "text-green-600" : "text-red-600"}`}>
+          <p
+            className={`text-lg ${
+              estado === "registrado" ? "text-green-600" : "text-red-600"
+            }`}
+          >
             {mensaje}
           </p>
         )}

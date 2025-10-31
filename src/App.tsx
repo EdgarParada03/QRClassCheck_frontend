@@ -17,36 +17,27 @@ export default function App() {
       const partes = pathname.split("/");
       const id = partes[2];
       if (id) {
-        const token = localStorage.getItem("authToken");
-        if (!token) {
-          localStorage.setItem("asistenciaPendiente", id);
-          window.location.href = "/";
-        } else {
-          setModoAsistencia(true);
-          setIdClase(id);
-        }
+        // Ya no redirigimos al login ni verificamos authToken
+        setModoAsistencia(true);
+        setIdClase(id);
       }
     }
   }, []);
 
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);
-
-    const asistenciaPendiente = localStorage.getItem("asistenciaPendiente");
-    if (asistenciaPendiente) {
-      localStorage.removeItem("asistenciaPendiente");
-      window.location.href = `/asistencia/${asistenciaPendiente}`;
-    }
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
   };
 
+  // Si estamos en modo asistencia, renderizamos ese componente directamente
   if (modoAsistencia && idClase) {
     return <Asistencia idClase={idClase} />;
   }
 
+  // Flujo normal para docentes
   return (
     <>
       {!isAuthenticated ? (
