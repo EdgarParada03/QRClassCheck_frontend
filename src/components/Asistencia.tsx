@@ -22,14 +22,14 @@ export function Asistencia({ idClase }: { idClase: string }) {
 
         try {
             // Paso 1: registrar usuario como estudiante
-            await fetch("https://qrclasscheck-backend.onrender.com/api/auth/google", {
+            await fetch("https://qrclasscheck-backend.onrender.com/auth/google", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ idToken, es_docente: false }),
             });
 
             // Paso 2: registrar asistencia
-            const res = await fetch("https://qrclasscheck-backend.onrender.com/api/asistencia/con-token", {
+            const res = await fetch("https://qrclasscheck-backend.onrender.com/asistencia/con-token", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ idToken, clase_id: idClase }),
