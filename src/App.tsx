@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Login } from "./components/Login";
 import { DocenteDashboard } from "./components/DocenteDashboard";
 import { Asistencia } from "./components/Asistencia";
@@ -28,7 +28,7 @@ export default function App() {
         {/* Ruta pública para escaneo de QR */}
         <Route path="/asistencia/:idClase" element={<Asistencia />} />
 
-        {/* Ruta principal */}
+        {/* Ruta principal protegida */}
         <Route
           path="/"
           element={
@@ -39,6 +39,9 @@ export default function App() {
             )
           }
         />
+
+        {/* Redirección por defecto */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   );
