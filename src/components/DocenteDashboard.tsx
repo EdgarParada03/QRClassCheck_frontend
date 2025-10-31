@@ -385,6 +385,7 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
           </div>
         </div>
       )}
+
     </>
   );
 
