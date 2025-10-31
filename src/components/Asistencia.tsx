@@ -3,8 +3,8 @@ import { useParams } from "react-router-dom";
 import { auth } from "../firebase"; // Asegúrate que la ruta sea correcta
 import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 
-export function Asistencia() {
-  const { idClase } = useParams();
+export function Asistencia({ idClase }: { idClase: string }) {
+
   const [estado, setEstado] = useState<"cargando" | "registrado" | "error" | "no-autenticado">("cargando");
   const [mensaje, setMensaje] = useState("");
 
