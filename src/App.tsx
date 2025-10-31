@@ -12,20 +12,31 @@ export default function App() {
     const token = localStorage.getItem("authToken");
     if (token) setIsAuthenticated(true);
 
-    // Detectar si la URL contiene /asistencia/:idClase
     const pathname = window.location.pathname;
     if (pathname.startsWith("/asistencia/")) {
       const partes = pathname.split("/");
-      const id = partes[2]; // /asistencia/abc123 → abc123
+      const id = partes[2];
       if (id) {
-        setModoAsistencia(true);
-        setIdClase(id);
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          localStorage.setItem("asistenciaPendiente", id);
+          window.location.href = "/";
+        } else {
+          setModoAsistencia(true);
+          setIdClase(id);
+        }
       }
     }
   }, []);
 
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);
+
+    const asistenciaPendiente = localStorage.getItem("asistenciaPendiente");
+    if (asistenciaPendiente) {
+      localStorage.removeItem("asistenciaPendiente");
+      window.location.href = `/asistencia/${asistenciaPendiente}`;
+    }
   };
 
   const handleLogout = () => {
