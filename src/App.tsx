@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { Login } from "./components/Login";
 import { DocenteDashboard } from "./components/DocenteDashboard";
 import { Asistencia } from "./components/Asistencia";
+import { Reporte } from "./components/Reporte";
 
-export default function App() {
+function AppContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [modoAsistencia, setModoAsistencia] = useState(false);
   const [idClase, setIdClase] = useState<string | null>(null);
@@ -17,7 +19,6 @@ export default function App() {
       const partes = pathname.split("/");
       const id = partes[2];
       if (id) {
-        // Ya no redirigimos al login ni verificamos authToken
         setModoAsistencia(true);
         setIdClase(id);
       }
@@ -32,19 +33,31 @@ export default function App() {
     setIsAuthenticated(false);
   };
 
-  // Si estamos en modo asistencia, renderizamos ese componente directamente
   if (modoAsistencia && idClase) {
     return <Asistencia idClase={idClase} />;
   }
 
-  // Flujo normal para docentes
   return (
-    <>
-      {!isAuthenticated ? (
-        <Login onLoginSuccess={handleLoginSuccess} />
-      ) : (
-        <DocenteDashboard onLogout={handleLogout} />
-      )}
-    </>
+    <Routes>
+      <Route
+        path="/"
+        element={
+          !isAuthenticated ? (
+            <Login onLoginSuccess={handleLoginSuccess} />
+          ) : (
+            <DocenteDashboard onLogout={handleLogout} />
+          )
+        }
+      />
+      <Route path="/reporte/:idClase" element={<Reporte />} />
+    </Routes>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
   );
 }
