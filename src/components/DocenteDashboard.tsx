@@ -302,9 +302,10 @@ function QRModalDinamico({ clase, onClose }: { clase: Clase; onClose: () => void
   useEffect(() => {
     const generarQR = () => {
       const baseUrl = `https://qrclasscheck-frontend.vercel.app/asistencia/${clase.id}`;
-      const fullUrl = `${baseUrl}`;
+      // Agregamos un fragmento (#) con timestamp para que la imagen cambie
+      const qrData = `${baseUrl}#${Date.now()}`;
 
-      const qr = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(fullUrl)}&size=200x200`;
+      const qr = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrData)}&size=200x200`;
       setQrUrl(qr);
     };
 
@@ -312,6 +313,8 @@ function QRModalDinamico({ clase, onClose }: { clase: Clase; onClose: () => void
     const interval = setInterval(generarQR, 10000);
     return () => clearInterval(interval);
   }, [clase.id]);
+
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
