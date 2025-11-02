@@ -302,8 +302,8 @@ function QRModalDinamico({ clase, onClose }: { clase: Clase; onClose: () => void
   useEffect(() => {
     const generarQR = () => {
       const baseUrl = `https://qrclasscheck-frontend.vercel.app/asistencia/${clase.id}`;
-      const randomizer = `?r=${Date.now()}`;
-      const fullUrl = `${baseUrl}${randomizer}`;
+      const fullUrl = `${baseUrl}`;
+
       const qr = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(fullUrl)}&size=200x200`;
       setQrUrl(qr);
     };
