@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -66,6 +67,7 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
 
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
   const docente_id = userInfo.sub || userInfo.id || "docente-demo";
+  const navigate = useNavigate();
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -187,6 +189,10 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
     setQrModal({ visible: true, clase });
   };
 
+  const handleVerReporte = (claseId: string) => {
+    navigate(`/reporte/${claseId}`);
+  };
+
   const handleCerrarSesion = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userInfo");
@@ -274,7 +280,7 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
                   </div>
                   <div className="flex gap-2">
                     <Button onClick={() => handleGenerarQR(clase)} className="bg-[#1a2332] hover:bg-[#2a3442] text-white">Generar QR</Button>
-                    <Button variant="outline" onClick={() => console.log("Ver reporte de:", clase)} className="border-gray-300">Reporte</Button>
+                    <Button variant="outline" onClick={() => handleVerReporte(clase.id)} className="border-gray-300">Reporte</Button>
                   </div>
                 </div>
               ))}
@@ -322,6 +328,7 @@ function QRModalDinamico({ clase, onClose }: { clase: Clase; onClose: () => void
   );
 }
 
+// Componentes auxiliares
 
 function InputField({
   label,
@@ -378,4 +385,3 @@ function SelectField({
     </div>
   );
 }
-
