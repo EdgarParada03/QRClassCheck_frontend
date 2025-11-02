@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
-export function Asistencia({ idClase }: { idClase: string }) {
+export function Asistencia() {
+    const { idClase } = useParams<{ idClase: string }>();
     const [estado, setEstado] = useState<"cargando" | "registrado" | "error" | "no-autenticado">("no-autenticado");
     const [mensaje, setMensaje] = useState("");
 
@@ -16,7 +18,6 @@ export function Asistencia({ idClase }: { idClase: string }) {
         );
     }, []);
 
-
     const handleCredentialResponse = async (response: any) => {
         const idToken = response.credential;
 
@@ -28,7 +29,7 @@ export function Asistencia({ idClase }: { idClase: string }) {
                 body: JSON.stringify({ idToken, es_docente: false }),
             });
 
-            // Paso 2: registrar asistencia
+            // Paso 2: registrar asistencia usando el idClase de la URL
             const res = await fetch("https://qrclasscheck-backend.onrender.com/asistencia/con-token", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

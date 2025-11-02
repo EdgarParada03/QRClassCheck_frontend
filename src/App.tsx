@@ -33,10 +33,6 @@ function AppContent() {
     setIsAuthenticated(false);
   };
 
-  if (modoAsistencia && idClase) {
-    return <Asistencia idClase={idClase} />;
-  }
-
   return (
     <Routes>
       <Route
@@ -49,9 +45,12 @@ function AppContent() {
           )
         }
       />
+      {/* ✅ Nueva ruta para asistencia */}
+      <Route path="/asistencia/:idClase" element={<Asistencia />} />
       <Route path="/reporte/:idClase" element={<Reporte />} />
     </Routes>
   );
+
 }
 
 export default function App() {
