@@ -299,11 +299,12 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
 function QRModalDinamico({ clase, onClose }: { clase: Clase; onClose: () => void }) {
   const [qrUrl, setQrUrl] = useState("");
 
+  // dentro de QRModalDinamico
   useEffect(() => {
     const generarQR = () => {
-      const baseUrl = `https://qrclasscheck-frontend.vercel.app/asistencia/${clase.id}`;
-      // Agregamos un fragmento (#) con timestamp para que la imagen cambie
-      const qrData = `${baseUrl}#${Date.now()}`;
+      const origin = window.location.origin;
+      const baseUrl = `${origin}/asistencia/${clase.id}`;
+      const qrData = `${baseUrl}#${Date.now()}`; // cambia cada 10s
 
       const qr = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrData)}&size=200x200`;
       setQrUrl(qr);
@@ -313,6 +314,7 @@ function QRModalDinamico({ clase, onClose }: { clase: Clase; onClose: () => void
     const interval = setInterval(generarQR, 10000);
     return () => clearInterval(interval);
   }, [clase.id]);
+
 
 
 

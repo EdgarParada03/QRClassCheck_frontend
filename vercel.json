@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/asistencia/:idClase", "destination": "/" },
-    { "source": "/reporte/:idClase", "destination": "/" }
+    { "source": "/reporte/:idClase", "destination": "/" },
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
