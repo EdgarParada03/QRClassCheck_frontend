@@ -23,7 +23,7 @@ export function Reporte() {
   const [asistencias, setAsistencias] = useState<Asistencia[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const docenteEmail = JSON.parse(localStorage.getItem("userInfo") || "{}")?.email;
+  const docenteEmail = JSON.parse(localStorage.getItem("userInfo") || "{}")?.correo;
 
   useEffect(() => {
     const cargarReporte = async () => {
