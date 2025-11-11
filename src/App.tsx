@@ -7,7 +7,6 @@ import { Asistencia } from "./components/Asistencia";
 import { Reporte } from "./components/Reporte";
 import { HorarioDocente } from "./components/HorarioDocente";
 
-
 function AppContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -18,6 +17,10 @@ function AppContent() {
 
   const handleLoginSuccess = () => setIsAuthenticated(true);
   const handleLogout = () => setIsAuthenticated(false);
+
+  // Obtener docente_id igual que en el dashboard
+  const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+  const docente_id = userInfo.sub || userInfo.id || "docente-demo";
 
   return (
     <Routes>
@@ -33,8 +36,7 @@ function AppContent() {
       />
       <Route path="/asistencia/:idClase" element={<Asistencia />} />
       <Route path="/reporte/:idClase" element={<Reporte />} />
-      <Route path="/horario" element={<HorarioDocente docenteId={JSON.parse(localStorage.getItem("userInfo") || "{}")?.id} />} />
-      
+      <Route path="/horario" element={<HorarioDocente docenteId={docente_id} />} />
     </Routes>
   );
 }

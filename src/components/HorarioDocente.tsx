@@ -1,3 +1,4 @@
+// src/components/HorarioDocente.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
@@ -28,7 +29,8 @@ interface Clase {
 export function HorarioDocente({ docenteId }: { docenteId: string }) {
   const [clases, setClases] = useState<Clase[]>([]);
   const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-  const HORAS = ["08:00", "10:00", "14:00", "16:00", "18:00"];
+  // Generar todas las horas desde 06:00 hasta 22:00
+  const HORAS = Array.from({ length: 17 }, (_, i) => `${(6 + i).toString().padStart(2, "0")}:00`);
   const navigate = useNavigate();
 
   useEffect(() => {
