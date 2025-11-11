@@ -53,10 +53,12 @@ export function HorarioDocente({ docenteId }: { docenteId: string }) {
     cargarClases();
   }, [docenteId]);
 
-  const obtenerClaseExacta = (dia: string, hora: string) => {
-    return clases.find(
-      (clase) => clase.dia === dia && clase.hora_inicio === hora
-    );
+  // Mostrar clase en todas las filas que cubren su rango horario
+  const obtenerClaseEnCelda = (dia: string, hora: string) => {
+    return clases.find((clase) => {
+      if (clase.dia !== dia) return false;
+      return hora >= clase.hora_inicio && hora < clase.hora_fin;
+    });
   };
 
   const handleVerReporte = (claseId: string) => {
@@ -115,7 +117,7 @@ export function HorarioDocente({ docenteId }: { docenteId: string }) {
               <tr key={hora}>
                 <td className="border p-3 font-medium text-gray-700">{hora}</td>
                 {DIAS.map((dia) => {
-                  const clase = obtenerClaseExacta(dia, hora);
+                  const clase = obtenerClaseEnCelda(dia, hora);
                   return (
                     <td
                       key={`${dia}-${hora}`}
