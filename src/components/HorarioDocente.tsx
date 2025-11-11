@@ -34,7 +34,9 @@ export function HorarioDocente({ docenteId }: { docenteId: string }) {
   useEffect(() => {
     const cargarClases = async () => {
       try {
-        const res = await fetch(`https://qrclasscheck-backend.onrender.com/clases?docente_id=${docenteId}`);
+        const res = await fetch(
+          `https://qrclasscheck-backend.onrender.com/clases?docente_id=${docenteId}`
+        );
         if (res.ok) {
           const data = await res.json();
           setClases(data);
@@ -50,23 +52,59 @@ export function HorarioDocente({ docenteId }: { docenteId: string }) {
   }, [docenteId]);
 
   const obtenerClaseExacta = (dia: string, hora: string) => {
-    return clases.find((clase) => clase.dia === dia && clase.hora_inicio === hora);
+    return clases.find(
+      (clase) => clase.dia === dia && clase.hora_inicio === hora
+    );
   };
 
   const handleVerReporte = (claseId: string) => {
     navigate(`/reporte/${claseId}`);
   };
 
+  const handleCerrarSesion = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userInfo");
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-6">Horario Completo</h2>
+        {/* Barra superior con acciones */}
+        <div className="flex justify-between items-center mb-6">
+          <Button
+            variant="outline"
+            onClick={() => navigate(-1)}
+            className="border-gray-300"
+          >
+            Volver
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleCerrarSesion}
+            className="border-gray-300"
+          >
+            Cerrar sesión
+          </Button>
+        </div>
+
+        {/* Título */}
+        <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+          Horario Completo
+        </h2>
+
+        {/* Tabla del horario */}
         <table className="table-auto border-collapse w-full text-sm">
           <thead>
             <tr>
               <th className="border p-3 bg-gray-50 text-left">Hora</th>
               {DIAS.map((dia) => (
-                <th key={dia} className="border p-3 bg-gray-50 text-center">{dia}</th>
+                <th
+                  key={dia}
+                  className="border p-3 bg-gray-50 text-center font-medium"
+                >
+                  {dia}
+                </th>
               ))}
             </tr>
           </thead>
@@ -77,11 +115,18 @@ export function HorarioDocente({ docenteId }: { docenteId: string }) {
                 {DIAS.map((dia) => {
                   const clase = obtenerClaseExacta(dia, hora);
                   return (
-                    <td key={`${dia}-${hora}`} className="border p-3 text-center align-top">
+                    <td
+                      key={`${dia}-${hora}`}
+                      className="border p-3 text-center align-top"
+                    >
                       {clase ? (
                         <div className="bg-blue-50 border border-blue-300 rounded-md p-2 space-y-1">
-                          <p className="text-blue-900 font-semibold">{clase.asignatura.nombre}</p>
-                          <p className="text-xs text-blue-700">{clase.asignatura.codigo}</p>
+                          <p className="text-blue-900 font-semibold">
+                            {clase.asignatura.nombre}
+                          </p>
+                          <p className="text-xs text-blue-700">
+                            {clase.asignatura.codigo}
+                          </p>
                           <div className="flex justify-center pt-2">
                             <Button
                               size="sm"
