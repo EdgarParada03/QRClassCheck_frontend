@@ -267,7 +267,14 @@ export function DocenteDashboard({ onLogout }: DocenteDashboardProps) {
                 <Clock className="w-5 h-5 text-gray-700" />
                 <h2 className="text-gray-900 text-lg font-semibold">Horario Generado</h2>
               </div>
-              <Button variant="outline" className="border-gray-300">Ver Horario Completo</Button>
+              <Button
+                variant="outline"
+                className="border-gray-300"
+                onClick={() => navigate("/horario")}
+              >
+                Ver Horario Completo
+              </Button>
+
             </div>
 
             <div className="space-y-4">
