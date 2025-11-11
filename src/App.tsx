@@ -5,6 +5,8 @@ import { Login } from "./components/Login";
 import { DocenteDashboard } from "./components/DocenteDashboard";
 import { Asistencia } from "./components/Asistencia";
 import { Reporte } from "./components/Reporte";
+import { HorarioDocente } from "./components/HorarioDocente";
+
 
 function AppContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -31,6 +33,8 @@ function AppContent() {
       />
       <Route path="/asistencia/:idClase" element={<Asistencia />} />
       <Route path="/reporte/:idClase" element={<Reporte />} />
+      <Route path="/horario" element={<HorarioDocente docenteId={JSON.parse(localStorage.getItem("userInfo") || "{}")?.id} />} />
+      
     </Routes>
   );
 }
