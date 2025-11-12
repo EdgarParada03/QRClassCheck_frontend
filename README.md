@@ -38,5 +38,3 @@ Frontend de la aplicación **QR Class Check**, un sistema académico que permite
 
 **TRABAJO REALIZADO POR EDGAR PARADA**
 **About me: https://edgarparada03.github.io/website/**
-## 📂 Estructura del proyecto
-
